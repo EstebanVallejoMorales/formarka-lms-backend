@@ -1,0 +1,6 @@
+@FormarkaLMS.Gateway_HostAddress = http://localhost:5234
+
+GET {{FormarkaLMS.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
