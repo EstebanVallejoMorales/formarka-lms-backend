@@ -1,0 +1,6 @@
+@FormarkaLMS.Services.Learning.API_HostAddress = http://localhost:5293
+
+GET {{FormarkaLMS.Services.Learning.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
