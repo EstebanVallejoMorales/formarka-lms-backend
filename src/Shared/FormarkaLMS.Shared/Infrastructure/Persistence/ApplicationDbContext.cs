@@ -1,12 +1,15 @@
 using FormarkaLMS.Shared.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace FormarkaLMS.Shared.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    private readonly IConfiguration _configuration;
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration) : base(options)
     {
+        _configuration = configuration;
     }
 
     // Courses Service DbSets
@@ -112,6 +115,19 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.StudentId).IsRequired();
             entity.Property(e => e.QuizId).IsRequired();
+        });
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseNpgsql(_configuration["ConnectionStrings:DefaultConnection"], options =>
+        {
+            options.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorCodesToAdd: null);
+            options.CommandTimeout(30);
+            options.MigrationsAssembly("FormarkaLMS.Shared");
         });
     }
 }
