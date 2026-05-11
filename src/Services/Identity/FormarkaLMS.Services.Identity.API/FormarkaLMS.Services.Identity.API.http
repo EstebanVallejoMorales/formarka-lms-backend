@@ -1,6 +1,0 @@
-@FormarkaLMS.Services.Identity.API_HostAddress = http://localhost:5298
-
-GET {{FormarkaLMS.Services.Identity.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

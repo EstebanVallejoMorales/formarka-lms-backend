@@ -1,6 +1,76 @@
 @FormarkaLMS.Gateway_HostAddress = http://localhost:5234
 
-GET {{FormarkaLMS.Gateway_HostAddress}}/weatherforecast/
+### Courses Endpoints
+
+# Get all courses
+GET {{FormarkaLMS.Gateway_HostAddress}}/api/courses
 Accept: application/json
+
+###
+
+# Get published courses
+GET {{FormarkaLMS.Gateway_HostAddress}}/api/courses/published
+Accept: application/json
+
+###
+
+# Get course by ID (replace {{courseId}} with a valid GUID)
+GET {{FormarkaLMS.Gateway_HostAddress}}/api/courses/{{courseId}}
+Accept: application/json
+
+###
+
+### Identity Endpoints
+
+# Get user profile by ID (replace {{userId}} with a valid GUID)
+GET {{FormarkaLMS.Gateway_HostAddress}}/api/identity/profile/{{userId}}
+Accept: application/json
+
+###
+
+### Learning Endpoints
+
+# Enroll a student in a course (replace IDs with valid GUIDs)
+POST {{FormarkaLMS.Gateway_HostAddress}}/api/learning/enroll
+Content-Type: application/json
+
+{
+  "studentId": "{{studentId}}",
+  "courseId": "{{courseId}}"
+}
+
+###
+
+# Mark a lesson as completed (replace IDs with valid GUIDs)
+POST {{FormarkaLMS.Gateway_HostAddress}}/api/learning/progress/complete
+Content-Type: application/json
+
+{
+  "studentId": "{{studentId}}",
+  "courseId": "{{courseId}}",
+  "lessonId": "{{lessonId}}"
+}
+
+###
+
+# Submit a quiz (replace IDs with valid GUIDs and provide valid option IDs)
+POST {{FormarkaLMS.Gateway_HostAddress}}/api/learning/quiz/submit
+Content-Type: application/json
+
+{
+  "studentId": "{{studentId}}",
+  "quizId": "{{quizId}}",
+  "submissions": [
+    {
+      "questionId": "{{questionId1}}",
+      "selectedOptionId": "{{optionId1}}"
+    },
+    {
+      "questionId": "{{questionId2}}",
+      "selectedOptionId": "{{optionId2}}"
+    }
+    // Add more submissions for other questions
+  ]
+}
 
 ###
