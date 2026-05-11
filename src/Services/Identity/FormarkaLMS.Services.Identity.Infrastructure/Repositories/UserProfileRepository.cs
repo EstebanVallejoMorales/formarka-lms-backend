@@ -1,15 +1,15 @@
-using FormarkaLMS.Services.Identity.Domain.Entities;
-using FormarkaLMS.Services.Identity.Domain.Interfaces;
-using FormarkaLMS.Services.Identity.Infrastructure.Persistence;
+using FormarkaLMS.Shared.Infrastructure.Models;
+using FormarkaLMS.Shared.Infrastructure.Persistence;
+using FormarkaLMS.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormarkaLMS.Services.Identity.Infrastructure.Repositories;
 
-public class UserProfileRepository : IUserProfileRepository
+public class UserProfileRepository : IRepository<UserProfile>
 {
-    private readonly IdentityDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public UserProfileRepository(IdentityDbContext context)
+    public UserProfileRepository(ApplicationDbContext context)
     {
         _context = context;
     }

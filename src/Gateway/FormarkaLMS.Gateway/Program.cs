@@ -1,3 +1,8 @@
+using FormarkaLMS.Services.Courses.Infrastructure.Repositories;
+using FormarkaLMS.Services.Identity.Infrastructure.Repositories;
+using FormarkaLMS.Services.Learning.Infrastructure.Repositories;
+using FormarkaLMS.Shared.Infrastructure.Models;
+using FormarkaLMS.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
@@ -18,33 +23,26 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Formarka LMS Gateway API", Version = "v1" });
 });
 
-// Configure DbContexts - These are needed by the Gateway to resolve dependencies for MediatR handlers
-// if the handlers themselves are registered here and need DbContext.
-// Alternatively, the DbContexts could be registered in each microservice's API project and injected from there.
-// For a single deployable unit (Option B), registering them here is appropriate.
-builder.Services.AddDbContext<FormarkaLMS.Services.Courses.Infrastructure.Persistence.CoursesDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<FormarkaLMS.Services.Identity.Infrastructure.Persistence.IdentityDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<FormarkaLMS.Services.Learning.Infrastructure.Persistence.LearningDbContext>(options =>
+// Configure unified DbContext for all microservices
+builder.Services.AddDbContext<FormarkaLMS.Shared.Infrastructure.Persistence.ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register Repositories and MediatR handlers for each microservice
 // It's important that the MediatR registration scans the correct Application assemblies.
 
 // Courses Service Application Layer & Domain Interfaces
-builder.Services.AddScoped<FormarkaLMS.Services.Courses.Domain.Interfaces.ICourseRepository, FormarkaLMS.Services.Courses.Infrastructure.Repositories.CourseRepository>();
+builder.Services.AddScoped<IRepository<Course>, CourseRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FormarkaLMS.Services.Courses.Application.DTOs.CourseDto).Assembly));
 
 // Identity Service Application Layer & Domain Interfaces
-builder.Services.AddScoped<FormarkaLMS.Services.Identity.Domain.Interfaces.IUserProfileRepository, FormarkaLMS.Services.Identity.Infrastructure.Repositories.UserProfileRepository>();
+builder.Services.AddScoped<IRepository<UserProfile>, UserProfileRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FormarkaLMS.Services.Identity.Application.Users.Queries.GetUserProfileByIdQuery).Assembly));
 
 // Learning Service Application Layer & Domain Interfaces
-builder.Services.AddScoped<FormarkaLMS.Services.Learning.Domain.Interfaces.IEnrollmentRepository, FormarkaLMS.Services.Learning.Infrastructure.Repositories.EnrollmentRepository>();
-builder.Services.AddScoped<FormarkaLMS.Services.Learning.Domain.Interfaces.ILessonProgressRepository, FormarkaLMS.Services.Learning.Infrastructure.Repositories.LessonProgressRepository>();
-builder.Services.AddScoped<FormarkaLMS.Services.Learning.Domain.Interfaces.IQuizRepository, FormarkaLMS.Services.Learning.Infrastructure.Repositories.QuizRepository>();
-builder.Services.AddScoped<FormarkaLMS.Services.Learning.Domain.Interfaces.IQuizResultRepository, FormarkaLMS.Services.Learning.Infrastructure.Repositories.QuizResultRepository>();
+builder.Services.AddScoped<IRepository<Enrollment>, EnrollmentRepository>();
+builder.Services.AddScoped<IRepository<LessonProgress>, LessonProgressRepository>();
+builder.Services.AddScoped<IRepository<Quiz>, QuizRepository>();
+builder.Services.AddScoped<IRepository<QuizResult>, QuizResultRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FormarkaLMS.Services.Learning.Application.Enrollments.Commands.EnrollStudentCommand).Assembly));
 
 // Shared MediatR registration (if any handlers exist in Shared.Application)

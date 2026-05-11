@@ -1,15 +1,16 @@
-using FormarkaLMS.Services.Learning.Domain.Entities;
 using FormarkaLMS.Services.Learning.Domain.Interfaces;
-using FormarkaLMS.Services.Learning.Infrastructure.Persistence;
+using FormarkaLMS.Shared.Infrastructure.Models;
+using FormarkaLMS.Shared.Infrastructure.Persistence;
+using FormarkaLMS.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormarkaLMS.Services.Learning.Infrastructure.Repositories;
 
-public class EnrollmentRepository : IEnrollmentRepository
+public class EnrollmentRepository : IRepository<Enrollment>
 {
-    private readonly LearningDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public EnrollmentRepository(LearningDbContext context)
+    public EnrollmentRepository(ApplicationDbContext context)
     {
         _context = context;
     }

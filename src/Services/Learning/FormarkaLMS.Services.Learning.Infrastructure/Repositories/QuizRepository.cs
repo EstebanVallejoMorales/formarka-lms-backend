@@ -1,15 +1,16 @@
-using FormarkaLMS.Services.Learning.Domain.Entities;
 using FormarkaLMS.Services.Learning.Domain.Interfaces;
-using FormarkaLMS.Services.Learning.Infrastructure.Persistence;
+using FormarkaLMS.Shared.Infrastructure.Models;
+using FormarkaLMS.Shared.Infrastructure.Persistence;
+using FormarkaLMS.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormarkaLMS.Services.Learning.Infrastructure.Repositories;
 
-public class QuizRepository : IQuizRepository
+public class QuizRepository : IRepository<Quiz>
 {
-    private readonly LearningDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public QuizRepository(LearningDbContext context)
+    public QuizRepository(ApplicationDbContext context)
     {
         _context = context;
     }
