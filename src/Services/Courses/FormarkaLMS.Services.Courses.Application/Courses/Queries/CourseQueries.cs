@@ -8,7 +8,7 @@ public record GetAllCoursesQuery() : IRequest<IEnumerable<CourseDto>>;
 public record GetPublishedCoursesQuery() : IRequest<IEnumerable<CourseDto>>;
 public record GetCourseByIdQuery(Guid Id) : IRequest<CourseDto?>;
 
-public class CourseQueryHandlers : 
+public class CourseQueryHandlers :
     IRequestHandler<GetAllCoursesQuery, IEnumerable<CourseDto>>,
     IRequestHandler<GetPublishedCoursesQuery, IEnumerable<CourseDto>>,
     IRequestHandler<GetCourseByIdQuery, CourseDto?>

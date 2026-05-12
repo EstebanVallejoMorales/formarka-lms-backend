@@ -1,8 +1,10 @@
+using FormarkaLMS.Services.Courses.Domain.Interfaces;
 using FormarkaLMS.Services.Courses.Infrastructure.Repositories;
+using FormarkaLMS.Services.Identity.Domain.Interfaces;
 using FormarkaLMS.Services.Identity.Infrastructure.Repositories;
+using FormarkaLMS.Services.Learning.Domain.Interfaces;
 using FormarkaLMS.Services.Learning.Infrastructure.Repositories;
-using FormarkaLMS.Shared.Infrastructure.Models;
-using FormarkaLMS.Shared.Interfaces;
+using FormarkaLMS.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
@@ -24,25 +26,25 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configure unified DbContext for all microservices
-builder.Services.AddDbContext<FormarkaLMS.Shared.Infrastructure.Persistence.ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register Repositories and MediatR handlers for each microservice
 // It's important that the MediatR registration scans the correct Application assemblies.
 
 // Courses Service Application Layer & Domain Interfaces
-builder.Services.AddScoped<IRepository<Course>, CourseRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FormarkaLMS.Services.Courses.Application.DTOs.CourseDto).Assembly));
 
 // Identity Service Application Layer & Domain Interfaces
-builder.Services.AddScoped<IRepository<UserProfile>, UserProfileRepository>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FormarkaLMS.Services.Identity.Application.Users.Queries.GetUserProfileByIdQuery).Assembly));
 
 // Learning Service Application Layer & Domain Interfaces
-builder.Services.AddScoped<IRepository<Enrollment>, EnrollmentRepository>();
-builder.Services.AddScoped<IRepository<LessonProgress>, LessonProgressRepository>();
-builder.Services.AddScoped<IRepository<Quiz>, QuizRepository>();
-builder.Services.AddScoped<IRepository<QuizResult>, QuizResultRepository>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<IQuizResultRepository, QuizResultRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FormarkaLMS.Services.Learning.Application.Enrollments.Commands.EnrollStudentCommand).Assembly));
 
 // Shared MediatR registration (if any handlers exist in Shared.Application)

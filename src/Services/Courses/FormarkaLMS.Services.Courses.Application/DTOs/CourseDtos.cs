@@ -1,4 +1,5 @@
-using FormarkaLMS.Services.Courses.Domain.Enums;
+
+using FormarkaLMS.Shared.Infrastructure.Enums;
 
 namespace FormarkaLMS.Services.Courses.Application.DTOs;
 

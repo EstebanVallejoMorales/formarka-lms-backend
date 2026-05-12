@@ -1,12 +1,11 @@
+using FormarkaLMS.Services.Courses.Domain.Entities;
 using FormarkaLMS.Services.Courses.Domain.Interfaces;
-using FormarkaLMS.Shared.Infrastructure.Models;
 using FormarkaLMS.Shared.Infrastructure.Persistence;
-using FormarkaLMS.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormarkaLMS.Services.Courses.Infrastructure.Repositories;
 
-public class CourseRepository : IRepository<Course>
+public class CourseRepository : ICourseRepository
 {
     private readonly ApplicationDbContext _context;
 
