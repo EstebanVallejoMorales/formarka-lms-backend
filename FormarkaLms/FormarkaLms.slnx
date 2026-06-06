@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FormarkaLms.Api/FormarkaLms.Api.csproj" />
+  <Project Path="FormarkaLms.Application/FormarkaLms.Application.csproj" />
+  <Project Path="FormarkaLms.Domain/FormarkaLms.Domain.csproj" />
+  <Project Path="FormarkaLms.Infrastructure/FormarkaLms.Infrastructure.csproj" />
+</Solution>
