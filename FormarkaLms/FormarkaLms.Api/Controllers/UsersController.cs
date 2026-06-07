@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using FormarkaLms.Application.Users.Commands;
+using FormarkaLms.Application.Users.Queries;
 using FormarkaLms.Application.Users.DTOs;
 
 namespace FormarkaLms.Api.Controllers;
@@ -47,5 +48,18 @@ public class UsersController : ControllerBase
         }
 
         return Ok(new { Message = "Perfil completado exitosamente", UserId = result.Data });
+    }
+
+    [HttpGet("profile/status")]
+    public async Task<IActionResult> GetProfileStatus()
+    {
+        var supabaseId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(supabaseId))
+            return Unauthorized();
+
+        var userExists = await _mediator.Send(new CheckUserExistsQuery(supabaseId));
+        
+        return Ok(new { IsProfileComplete = userExists });
     }
 }
