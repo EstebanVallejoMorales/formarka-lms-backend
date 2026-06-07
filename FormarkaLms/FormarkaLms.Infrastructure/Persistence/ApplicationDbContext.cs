@@ -1,10 +1,11 @@
+using FormarkaLms.Application.Common.Interfaces;
 using FormarkaLms.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace FormarkaLms.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {

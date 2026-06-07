@@ -1,3 +1,4 @@
+using FormarkaLms.Application.Common.Interfaces;
 using FormarkaLms.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,8 @@ public static class DependencyInjection
             options.UseLazyLoadingProxies()
                 .UseNpgsql(connectionString,
                     builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         return services;
     }
