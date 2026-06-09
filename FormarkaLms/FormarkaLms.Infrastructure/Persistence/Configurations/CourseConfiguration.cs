@@ -12,13 +12,15 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(c => c.Id).ValueGeneratedOnAdd();
         builder.Property(c => c.Title).IsRequired().HasMaxLength(255);
 
-        // Map LearningObjectives (List<string>) to JSONB in Postgres
-        builder.Property(c => c.LearningObjectives)
-            .HasColumnType("jsonb");
+        builder.HasMany(c => c.LearningObjectives)
+            .WithOne(o => o.Course)
+            .HasForeignKey(o => o.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Map Features (List<CourseFeature>) to JSONB in Postgres
-        builder.Property(c => c.Features)
-            .HasColumnType("jsonb");
+        builder.HasMany(c => c.Features)
+            .WithOne(f => f.Course)
+            .HasForeignKey(f => f.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(c => c.Instructor)
             .WithMany(i => i.Courses)

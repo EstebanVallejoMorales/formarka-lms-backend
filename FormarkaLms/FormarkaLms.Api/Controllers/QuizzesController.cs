@@ -5,6 +5,8 @@ using System.Security.Claims;
 using FormarkaLms.Application.Quizzes.Queries;
 using FormarkaLms.Application.Quizzes.Commands;
 
+using FormarkaLms.Application.Quizzes.DTOs;
+
 namespace FormarkaLms.Api.Controllers;
 
 [Authorize]
@@ -36,4 +38,12 @@ public class QuizzesController : ControllerBase
         var result = await _mediator.Send(new SubmitQuizAttemptCommand(id, userId, answers));
         return Ok(result);
     }
+
+    [Authorize(Roles = "Admin,Teacher")]
+    [HttpPost("upsert")]
+    public async Task<ActionResult<int>> Upsert([FromBody] QuizAdminDto quiz)
+    {
+        return await _mediator.Send(new UpsertQuizCommand(quiz));
+    }
 }
+

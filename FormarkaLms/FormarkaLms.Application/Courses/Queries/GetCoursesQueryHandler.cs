@@ -15,7 +15,14 @@ public class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, List<Cour
 
     public async Task<List<CourseDto>> Handle(GetCoursesQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Courses
+        var query = _context.Courses.AsQueryable();
+
+        if (!string.IsNullOrEmpty(request.InstructorId))
+        {
+            query = query.Where(c => c.InstructorId == request.InstructorId);
+        }
+
+        return await query
             .Include(c => c.Instructor)
             .ThenInclude(i => i.User)
             .Select(c => new CourseDto

@@ -16,6 +16,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Instructor> Instructors => Set<Instructor>();
     public DbSet<Entrepreneurship> Entrepreneurships => Set<Entrepreneurship>();
     public DbSet<Course> Courses => Set<Course>();
+    public DbSet<CourseObjective> CourseObjectives => Set<CourseObjective>();
+    public DbSet<CourseFeature> CourseFeatures => Set<CourseFeature>();
     public DbSet<FormarkaLms.Domain.Entities.Module> Modules => Set<FormarkaLms.Domain.Entities.Module>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<Resource> Resources => Set<Resource>();

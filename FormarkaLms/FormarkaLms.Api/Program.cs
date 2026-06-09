@@ -62,7 +62,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudiences = new[] { "authenticated", "anon" },
 
             ValidateLifetime = true,
-            NameClaimType = ClaimTypes.NameIdentifier
+            NameClaimType = ClaimTypes.NameIdentifier,
+            RoleClaimType = ClaimTypes.Role // Aseguramos que busque aquí
         };
 
         options.Events = new JwtBearerEvents
@@ -76,6 +77,67 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnTokenValidated = context =>
             {
                 Console.WriteLine("--- TOKEN VALIDADO CORRECTAMENTE ---");
+                
+                var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
+                if (claimsIdentity == null) return Task.CompletedTask;
+
+                string? role = null;
+
+                // Intentar extraer de app_metadata (preferido para roles de sistema) o user_metadata
+                if (context.SecurityToken is Microsoft.IdentityModel.JsonWebTokens.JsonWebToken jsonToken)
+                {
+                    // Buscar en app_metadata
+                    if (jsonToken.TryGetPayloadValue<System.Text.Json.JsonElement>("app_metadata", out var appMetadata) && 
+                        appMetadata.TryGetProperty("role", out var appRole))
+                    {
+                        role = appRole.GetString();
+                    }
+                    
+                    // Si no está, buscar en user_metadata
+                    if (string.IsNullOrEmpty(role) && 
+                        jsonToken.TryGetPayloadValue<System.Text.Json.JsonElement>("user_metadata", out var userMetadata) && 
+                        userMetadata.TryGetProperty("role", out var userRole))
+                    {
+                        role = userRole.GetString();
+                    }
+                }
+                else if (context.SecurityToken is System.IdentityModel.Tokens.Jwt.JwtSecurityToken jwtToken)
+                {
+                    // Lógica para JwtSecurityToken (respaldo)
+                    var claims = jwtToken.Claims.ToList();
+                    
+                    var appMeta = claims.FirstOrDefault(c => c.Type == "app_metadata")?.Value;
+                    if (!string.IsNullOrEmpty(appMeta)) {
+                        try {
+                            var doc = System.Text.Json.JsonDocument.Parse(appMeta);
+                            if (doc.RootElement.TryGetProperty("role", out var r)) role = r.GetString();
+                        } catch {}
+                    }
+
+                    if (string.IsNullOrEmpty(role)) {
+                        var userMeta = claims.FirstOrDefault(c => c.Type == "user_metadata")?.Value;
+                        if (!string.IsNullOrEmpty(userMeta)) {
+                            try {
+                                var doc = System.Text.Json.JsonDocument.Parse(userMeta);
+                                if (doc.RootElement.TryGetProperty("role", out var r)) role = r.GetString();
+                            } catch {}
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(role))
+                {
+                    var normalizedRole = char.ToUpper(role[0]) + role.Substring(1).ToLower();
+                    Console.WriteLine($"--- ROL IDENTIFICADO: {normalizedRole} ---");
+                    
+                    // Agregamos el rol. Usamos el RoleClaimType configurado en Identity
+                    claimsIdentity.AddClaim(new Claim(claimsIdentity.RoleClaimType, normalizedRole));
+                }
+                else 
+                {
+                    Console.WriteLine("--- ADVERTENCIA: No se encontró un rol en los metadatos del token ---");
+                }
+
                 return Task.CompletedTask;
             }
         };

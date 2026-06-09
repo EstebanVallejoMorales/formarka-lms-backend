@@ -2,10 +2,9 @@ using FormarkaLms.Domain.Common;
 
 namespace FormarkaLms.Domain.Entities;
 
-public class CourseFeature : BaseEntity
+public class CourseObjective : BaseEntity
 {
     public int CourseId { get; set; }
-    public string Icon { get; set; } = default!;
     public string Text { get; set; } = default!;
 
     // Navigation Properties

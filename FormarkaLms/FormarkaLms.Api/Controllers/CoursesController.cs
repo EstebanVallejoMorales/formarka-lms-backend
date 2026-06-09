@@ -25,6 +25,19 @@ public class CoursesController : ControllerBase
         return await _mediator.Send(new GetCoursesQuery());
     }
 
+    [Authorize(Roles = "Admin,Teacher")]
+    [HttpGet("admin")]
+    public async Task<ActionResult<List<CourseDto>>> GetAdminCourses()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        
+        // If Instructor, only show their courses. If Admin, show all.
+        string? instructorId = role == "Teacher" ? userId : null;
+        
+        return await _mediator.Send(new GetCoursesQuery(instructorId));
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<CourseDetailDto>> GetCourse(int id)
     {
@@ -45,6 +58,16 @@ public class CoursesController : ControllerBase
         if (!result) return NotFound();
 
         return Ok(new { Message = "Successfully enrolled in course" });
+    }
+
+    [Authorize(Roles = "Admin,Teacher")]
+    [HttpPost("{id}/enroll-student")]
+    public async Task<IActionResult> EnrollStudent(int id, [FromBody] string studentId)
+    {
+        var result = await _mediator.Send(new EnrollInCourseCommand(id, studentId));
+        if (!result) return NotFound();
+
+        return Ok(new { Message = "Student successfully enrolled in course" });
     }
 
     [Authorize]

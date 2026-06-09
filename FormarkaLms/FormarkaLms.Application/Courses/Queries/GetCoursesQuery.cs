@@ -16,4 +16,4 @@ public class CourseDto
     public int TotalHours { get; set; }
 }
 
-public record GetCoursesQuery : IRequest<List<CourseDto>>;
+public record GetCoursesQuery(string? InstructorId = null) : IRequest<List<CourseDto>>;

@@ -63,11 +63,28 @@ public class UsersController : ControllerBase
         return Ok(new { IsProfileComplete = userExists });
     }
 
+    [Authorize(Roles = "Admin,Teacher")]
+    [HttpGet("instructors")]
+    public async Task<ActionResult<List<InstructorDto>>> GetInstructors()
+    {
+        return await _mediator.Send(new GetInstructorsQuery());
+    }
+
     [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<List<UserAdminDto>>> GetAll()
     {
         return await _mediator.Send(new GetAllUsersQuery());
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateUserCommand command)
+    {
+        if (id != command.Id) return BadRequest();
+        var result = await _mediator.Send(command);
+        if (!result) return NotFound();
+        return NoContent();
     }
 
     [Authorize(Roles = "Admin")]
