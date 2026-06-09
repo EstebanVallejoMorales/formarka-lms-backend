@@ -21,6 +21,7 @@ public interface IApplicationDbContext
     DbSet<QuizOption> QuizOptions { get; }
     DbSet<QuizAttempt> QuizAttempts { get; }
     DbSet<Comment> Comments { get; }
+    DbSet<Certificate> Certificates { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

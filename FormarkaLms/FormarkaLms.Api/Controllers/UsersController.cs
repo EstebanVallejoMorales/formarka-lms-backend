@@ -62,4 +62,29 @@ public class UsersController : ControllerBase
         
         return Ok(new { IsProfileComplete = userExists });
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<ActionResult<List<UserAdminDto>>> GetAll()
+    {
+        return await _mediator.Send(new GetAllUsersQuery());
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/role")]
+    public async Task<IActionResult> UpdateRole(string id, [FromBody] string role)
+    {
+        var result = await _mediator.Send(new UpdateUserRoleCommand(id, role));
+        if (!result) return NotFound();
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var result = await _mediator.Send(new DeleteUserCommand(id));
+        if (!result) return NotFound();
+        return NoContent();
+    }
 }

@@ -11,6 +11,8 @@ public class User
     public string LastName { get; set; } = default!;
     public string? PhoneNumber { get; set; }
     public string? PhotoUrl { get; set; }
+    public string FullName => Name ?? $"{FirstName} {LastName}";
+    public string? ProfilePictureUrl => PhotoUrl;
     public bool IsActive { get; set; } = true;
     public UserRole Role { get; set; }
     public string? Specialty { get; set; } // Only for instructors

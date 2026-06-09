@@ -25,10 +25,14 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular",
+    // Creamos una única política que permite ambos entornos
+    options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200")
+            policy.WithOrigins(
+                    "http://localhost:4200",               // Desarrollo local
+                    "https://TU-USUARIO.github.io"         // Producción en GitHub Pages
+                  )
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -45,7 +49,7 @@ var supabaseKeys = new JsonWebKeySet(jwksJson).GetSigningKeys();
 // 2. Configuramos la autenticación
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
-    {        
+    {
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -53,10 +57,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             ValidateIssuer = true,
             ValidIssuers = new[] { $"{supabaseUrl}/auth/v1", supabaseUrl },
-            
+
             ValidateAudience = true,
             ValidAudiences = new[] { "authenticated", "anon" },
-            
+
             ValidateLifetime = true,
             NameClaimType = ClaimTypes.NameIdentifier
         };
@@ -82,7 +86,7 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // CORS MUST be at the very top to handle preflight requests
-app.UseCors("AllowAngular");
+app.UseCors("AllowFrontend");
 
 // Apply migrations on startup
 using (var scope = app.Services.CreateScope())
@@ -104,11 +108,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
+//}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
