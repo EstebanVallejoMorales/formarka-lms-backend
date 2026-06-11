@@ -30,8 +30,8 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins(
-                    "http://localhost:4200",               // Desarrollo local
-                    "https://TU-USUARIO.github.io"         // Producción en GitHub Pages
+                    "http://localhost:4200",                                         // Desarrollo local
+                    "https://victorious-pond-0fbb6b710.7.azurestaticapps.net"        // Producción en Azure
                   )
                   .AllowAnyHeader()
                   .AllowAnyMethod();
