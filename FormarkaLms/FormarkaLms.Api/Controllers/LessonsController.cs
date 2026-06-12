@@ -29,4 +29,16 @@ public class LessonsController : ControllerBase
 
         return Ok(new { Message = "Lesson marked as completed" });
     }
+
+    [HttpPost("{id}/track")]
+    public async Task<IActionResult> TrackLesson(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var result = await _mediator.Send(new TrackLessonAccessCommand(id, userId));
+        if (!result) return NotFound();
+
+        return Ok(new { Message = "Lesson access tracked" });
+    }
 }

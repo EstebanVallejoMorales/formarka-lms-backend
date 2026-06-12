@@ -30,15 +30,27 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
 
         var completedLessonIds = new HashSet<int>();
         var isEnrolled = false;
+        int? lastVisitedLessonId = null;
+
         if (!string.IsNullOrEmpty(request.UserId))
         {
             isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == request.Id && e.StudentId == request.UserId, cancellationToken);
 
-            completedLessonIds = (await _context.LessonProgresses
-                .Where(lp => lp.StudentId == request.UserId && lp.IsCompleted)
+            var userProgress = await _context.LessonProgresses
+                .Where(lp => lp.StudentId == request.UserId && lp.Lesson.Module.CourseId == request.Id)
+                .Select(lp => new { lp.LessonId, lp.IsCompleted, lp.LastAccessed })
+                .ToListAsync(cancellationToken);
+
+            completedLessonIds = userProgress
+                .Where(lp => lp.IsCompleted)
                 .Select(lp => lp.LessonId)
-                .ToListAsync(cancellationToken)).ToHashSet();
+                .ToHashSet();
+
+            lastVisitedLessonId = userProgress
+                .OrderByDescending(lp => lp.LastAccessed)
+                .Select(lp => (int?)lp.LessonId)
+                .FirstOrDefault();
         }
 
         return new CourseDetailDto
@@ -53,6 +65,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             InstructorName = course.Instructor.User.Name,
             TotalHours = course.TotalHours,
             IsEnrolled = isEnrolled,
+            LastVisitedLessonId = lastVisitedLessonId,
             Modules = course.Modules.Select(m => new ModuleDto
             {
                 Id = m.Id,

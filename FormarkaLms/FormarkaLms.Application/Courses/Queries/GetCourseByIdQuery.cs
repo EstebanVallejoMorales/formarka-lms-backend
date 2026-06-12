@@ -6,6 +6,7 @@ namespace FormarkaLms.Application.Courses.Queries;
 public class CourseDetailDto : CourseDto
 {
     public bool IsEnrolled { get; set; }
+    public int? LastVisitedLessonId { get; set; }
     public List<ModuleDto> Modules { get; set; } = new();
 }
 
