@@ -89,7 +89,7 @@ public class CoursesController : ControllerBase
 
     [Authorize(Roles = "Admin,Teacher")]
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateCourseCommand command)
+    public async Task<ActionResult<int>> Create([FromBody] CreateCourseCommand command)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         command.InstructorId = userId!; // Default to current user as instructor
@@ -98,7 +98,7 @@ public class CoursesController : ControllerBase
 
     [Authorize(Roles = "Admin,Teacher")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateCourseCommand command)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateCourseCommand command)
     {
         if (id != command.Id) return BadRequest();
         var result = await _mediator.Send(command);

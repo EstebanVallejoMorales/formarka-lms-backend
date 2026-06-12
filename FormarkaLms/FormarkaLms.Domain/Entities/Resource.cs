@@ -9,6 +9,7 @@ public class Resource : BaseEntity
     public string Title { get; set; } = default!;
     public string Url { get; set; } = default!;
     public ResourceType Type { get; set; }
+    public bool IsFree { get; set; }
 
     // Navigation Properties
     public virtual Lesson Lesson { get; set; } = default!;

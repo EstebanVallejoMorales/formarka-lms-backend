@@ -11,11 +11,14 @@ public record CreateCourseCommand : IRequest<int>
 {
     public string Title { get; set; } = default!;
     public string Description { get; set; } = default!;
+    public string? LongDescription { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? Category { get; set; }
     public string Level { get; set; } = "básico";
     public int TotalHours { get; set; }
     public string InstructorId { get; set; } = default!;
+    public List<CourseObjectiveCommandDto> Objectives { get; set; } = new();
+    public List<CourseFeatureCommandDto> Features { get; set; } = new();
     public List<ModuleCommandDto> Modules { get; set; } = new();
 }
 
@@ -30,10 +33,29 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, i
 
     public async Task<int> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
+        // Ensure Instructor exists
+        var instructorExists = await _context.Instructors.AnyAsync(i => i.Id == request.InstructorId, cancellationToken);
+        if (!instructorExists)
+        {
+            // Verify if the user exists and has a compatible role (optional but recommended)
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.InstructorId, cancellationToken);
+            if (user != null)
+            {
+                _context.Instructors.Add(new Instructor 
+                { 
+                    Id = request.InstructorId,
+                    ProfessionalTitle = user.Specialty ?? "Instructor"
+                });
+                // We don't necessarily need to SaveChanges here if we are using the same context tracking, 
+                // but it's safer for FK constraints in some configurations.
+            }
+        }
+
         var course = new Course
         {
             Title = request.Title,
             Description = request.Description,
+            LongDescription = request.LongDescription,
             ThumbnailUrl = request.ThumbnailUrl,
             Category = request.Category,
             Level = MapCourseLevel(request.Level),
@@ -41,6 +63,25 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, i
             InstructorId = request.InstructorId,
             CreatedAt = DateTime.UtcNow
         };
+
+        foreach (var objDto in request.Objectives)
+        {
+            course.LearningObjectives.Add(new CourseObjective
+            {
+                Text = objDto.Text,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        foreach (var featDto in request.Features)
+        {
+            course.Features.Add(new CourseFeature
+            {
+                Icon = featDto.Icon,
+                Text = featDto.Text,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
 
         int mOrder = 1;
         foreach (var mDto in request.Modules)

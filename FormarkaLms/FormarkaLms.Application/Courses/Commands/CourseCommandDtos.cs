@@ -9,6 +9,19 @@ public record ModuleCommandDto
     public List<LessonCommandDto> Lessons { get; set; } = new();
 }
 
+public record CourseObjectiveCommandDto
+{
+    public int? Id { get; set; }
+    public string Text { get; set; } = default!;
+}
+
+public record CourseFeatureCommandDto
+{
+    public int? Id { get; set; }
+    public string Icon { get; set; } = default!;
+    public string Text { get; set; } = default!;
+}
+
 public record LessonCommandDto
 {
     public int? Id { get; set; }

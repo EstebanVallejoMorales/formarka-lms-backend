@@ -12,11 +12,14 @@ public record UpdateCourseCommand : IRequest<bool>
     public int Id { get; set; }
     public string Title { get; set; } = default!;
     public string Description { get; set; } = default!;
+    public string? LongDescription { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? Category { get; set; }
     public string Level { get; set; } = "básico";
     public int TotalHours { get; set; }
     public string? InstructorId { get; set; }
+    public List<CourseObjectiveCommandDto> Objectives { get; set; } = new();
+    public List<CourseFeatureCommandDto> Features { get; set; } = new();
     public List<ModuleCommandDto> Modules { get; set; } = new();
 }
 
@@ -32,6 +35,8 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, b
     public async Task<bool> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses
+            .Include(c => c.LearningObjectives)
+            .Include(c => c.Features)
             .Include(c => c.Modules)
                 .ThenInclude(m => m.Lessons)
                     .ThenInclude(l => l.Resources)
@@ -44,15 +49,40 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, b
 
         if (course == null) return false;
 
+        // Ensure Instructor exists if ID is provided
+        if (!string.IsNullOrEmpty(request.InstructorId))
+        {
+            var instructorExists = await _context.Instructors.AnyAsync(i => i.Id == request.InstructorId, cancellationToken);
+            if (!instructorExists)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.InstructorId, cancellationToken);
+                if (user != null)
+                {
+                    _context.Instructors.Add(new Instructor
+                    {
+                        Id = request.InstructorId,
+                        ProfessionalTitle = user.Specialty ?? "Instructor"
+                    });
+                }
+            }
+        }
+
         // 1. Update general course info
         course.Title = request.Title;
         course.Description = request.Description;
+        course.LongDescription = request.LongDescription;
         course.ThumbnailUrl = request.ThumbnailUrl;
         course.Category = request.Category;
         course.Level = MapCourseLevel(request.Level);
         course.TotalHours = request.TotalHours;
         if (!string.IsNullOrEmpty(request.InstructorId)) course.InstructorId = request.InstructorId;
         course.UpdatedAt = DateTime.UtcNow;
+
+        // Synchronize Objectives
+        SyncObjectives(course, request.Objectives);
+
+        // Synchronize Features
+        SyncFeatures(course, request.Features);
 
         // 2. Synchronize Modules
         var existingModules = course.Modules.ToList();
@@ -157,6 +187,68 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, b
 
         await _context.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    private void SyncObjectives(Course course, List<CourseObjectiveCommandDto> dtos)
+    {
+        var existing = course.LearningObjectives.ToList();
+        var incomingIds = dtos.Where(o => o.Id.HasValue).Select(o => o.Id!.Value).ToList();
+
+        foreach (var ex in existing)
+        {
+            if (!incomingIds.Contains(ex.Id)) _context.CourseObjectives.Remove(ex);
+        }
+
+        foreach (var dto in dtos)
+        {
+            var objective = dto.Id.HasValue ? existing.FirstOrDefault(o => o.Id == dto.Id.Value) : null;
+            if (objective != null)
+            {
+                objective.Text = dto.Text;
+                objective.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                course.LearningObjectives.Add(new CourseObjective
+                {
+                    Text = dto.Text,
+                    CreatedAt = DateTime.UtcNow,
+                    CourseId = course.Id
+                });
+            }
+        }
+    }
+
+    private void SyncFeatures(Course course, List<CourseFeatureCommandDto> dtos)
+    {
+        var existing = course.Features.ToList();
+        var incomingIds = dtos.Where(f => f.Id.HasValue).Select(f => f.Id!.Value).ToList();
+
+        foreach (var ex in existing)
+        {
+            if (!incomingIds.Contains(ex.Id)) _context.CourseFeatures.Remove(ex);
+        }
+
+        foreach (var dto in dtos)
+        {
+            var feature = dto.Id.HasValue ? existing.FirstOrDefault(f => f.Id == dto.Id.Value) : null;
+            if (feature != null)
+            {
+                feature.Icon = dto.Icon;
+                feature.Text = dto.Text;
+                feature.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                course.Features.Add(new CourseFeature
+                {
+                    Icon = dto.Icon,
+                    Text = dto.Text,
+                    CreatedAt = DateTime.UtcNow,
+                    CourseId = course.Id
+                });
+            }
+        }
     }
 
     private void SyncResources(Lesson lesson, List<ResourceCommandDto> dtos)

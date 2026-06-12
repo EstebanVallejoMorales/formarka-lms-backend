@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using FormarkaLms.Application.Common.Interfaces;
+using FormarkaLms.Domain.Enums;
 
 namespace FormarkaLms.Application.Courses.Queries;
 
@@ -32,7 +33,9 @@ public class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, List<Cour
                 Description = c.Description,
                 ThumbnailUrl = c.ThumbnailUrl,
                 Category = c.Category,
-                Level = c.Level.ToString().ToLower(),
+                Level = c.Level == CourseLevel.Basico ? "básico" :
+                        c.Level == CourseLevel.Intermedio ? "intermedio" :
+                        c.Level == CourseLevel.Avanzado ? "avanzado" : "básico",
                 InstructorId = c.InstructorId,
                 InstructorName = c.Instructor.User.Name,
                 TotalHours = c.TotalHours

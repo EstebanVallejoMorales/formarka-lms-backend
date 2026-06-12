@@ -10,6 +10,8 @@ public interface IApplicationDbContext
     DbSet<Instructor> Instructors { get; }
     DbSet<Entrepreneurship> Entrepreneurships { get; }
     DbSet<Course> Courses { get; }
+    DbSet<CourseObjective> CourseObjectives { get; }
+    DbSet<CourseFeature> CourseFeatures { get; }
     DbSet<FormarkaLms.Domain.Entities.Module> Modules { get; }
     DbSet<Lesson> Lessons { get; }
     DbSet<Resource> Resources { get; }

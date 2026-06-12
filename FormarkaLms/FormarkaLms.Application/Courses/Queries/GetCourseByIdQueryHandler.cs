@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using FormarkaLms.Application.Common.Interfaces;
 using FormarkaLms.Application.Quizzes.Queries;
+using FormarkaLms.Domain.Enums;
 
 namespace FormarkaLms.Application.Courses.Queries;
 
@@ -19,6 +20,8 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
         var course = await _context.Courses
             .Include(c => c.Instructor)
             .ThenInclude(i => i.User)
+            .Include(c => c.LearningObjectives)
+            .Include(c => c.Features)
             .Include(c => c.Modules.OrderBy(m => m.Order))
             .ThenInclude(m => m.Lessons.OrderBy(l => l.Order))
             .ThenInclude(l => l.Quizzes)
@@ -60,12 +63,26 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             Description = course.Description,
             ThumbnailUrl = course.ThumbnailUrl,
             Category = course.Category,
-            Level = course.Level.ToString().ToLower(),
+            Level = course.Level switch
+            {
+                CourseLevel.Basico => "básico",
+                CourseLevel.Intermedio => "intermedio",
+                CourseLevel.Avanzado => "avanzado",
+                _ => "básico"
+            },
             InstructorId = course.InstructorId,
             InstructorName = course.Instructor.User.Name,
             TotalHours = course.TotalHours,
             IsEnrolled = isEnrolled,
             LastVisitedLessonId = lastVisitedLessonId,
+            LongDescription = course.LongDescription,
+            Objectives = course.LearningObjectives.Select(o => o.Text).ToList(),
+            Features = course.Features.Select(f => new FeatureDto
+            {
+                Id = f.Id,
+                Icon = f.Icon,
+                Text = f.Text
+            }).ToList(),
             Modules = course.Modules.Select(m => new ModuleDto
             {
                 Id = m.Id,
@@ -88,10 +105,13 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
                         {
                             Id = qs.Id,
                             Text = qs.Text,
+                            Type = qs.QuestionType.ToString().ToLower(),
+                            Points = qs.Points,
                             Options = qs.Options.Select(o => new QuizOptionDto
                             {
                                 Id = o.Id,
-                                Text = o.Text
+                                Text = o.Text,
+                                IsCorrect = o.IsCorrect
                             }).ToList()
                         }).ToList()
                     }).FirstOrDefault()

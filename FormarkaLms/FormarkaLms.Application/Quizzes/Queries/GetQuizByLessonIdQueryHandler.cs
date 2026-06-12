@@ -32,10 +32,13 @@ public class GetQuizByLessonIdQueryHandler : IRequestHandler<GetQuizByLessonIdQu
             {
                 Id = qs.Id,
                 Text = qs.Text,
+                Type = qs.QuestionType.ToString().ToLower(),
+                Points = qs.Points,
                 Options = qs.Options.Select(o => new QuizOptionDto
                 {
                     Id = o.Id,
-                    Text = o.Text
+                    Text = o.Text,
+                    IsCorrect = o.IsCorrect
                 }).ToList()
             }).ToList()
         };

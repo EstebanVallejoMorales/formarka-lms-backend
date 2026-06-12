@@ -7,7 +7,17 @@ public class CourseDetailDto : CourseDto
 {
     public bool IsEnrolled { get; set; }
     public int? LastVisitedLessonId { get; set; }
+    public string? LongDescription { get; set; }
+    public List<string> Objectives { get; set; } = new();
+    public List<FeatureDto> Features { get; set; } = new();
     public List<ModuleDto> Modules { get; set; } = new();
+}
+
+public class FeatureDto
+{
+    public int Id { get; set; }
+    public string Icon { get; set; } = default!;
+    public string Text { get; set; } = default!;
 }
 
 public class ModuleDto
