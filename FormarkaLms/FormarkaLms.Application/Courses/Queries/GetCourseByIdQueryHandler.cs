@@ -121,4 +121,4 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
         };
     }
 }
-}
+
