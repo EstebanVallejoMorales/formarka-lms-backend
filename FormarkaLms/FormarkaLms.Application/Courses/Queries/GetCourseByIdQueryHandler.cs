@@ -71,8 +71,8 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
                 _ => "básico"
             },
             InstructorId = course.InstructorId,
-            InstructorName = course.Instructor.User.Name,
-            TotalHours = course.TotalHours,
+            InstructorName = course?.Instructor?.User?.Name,
+            TotalHours = course?.TotalHours,
             IsFree = course.IsFree,
             IsEnrolled = isEnrolled,
             LastVisitedLessonId = lastVisitedLessonId,
@@ -120,4 +120,5 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             }).ToList()
         };
     }
+}
 }
