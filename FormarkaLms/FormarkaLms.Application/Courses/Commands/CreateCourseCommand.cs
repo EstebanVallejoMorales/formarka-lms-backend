@@ -16,6 +16,7 @@ public record CreateCourseCommand : IRequest<int>
     public string? Category { get; set; }
     public string Level { get; set; } = "básico";
     public int TotalHours { get; set; }
+    public bool IsFree { get; set; } = false;
     public string InstructorId { get; set; } = default!;
     public List<CourseObjectiveCommandDto> Objectives { get; set; } = new();
     public List<CourseFeatureCommandDto> Features { get; set; } = new();
@@ -60,6 +61,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, i
             Category = request.Category,
             Level = MapCourseLevel(request.Level),
             TotalHours = request.TotalHours,
+            IsFree = request.IsFree,
             InstructorId = request.InstructorId,
             CreatedAt = DateTime.UtcNow
         };

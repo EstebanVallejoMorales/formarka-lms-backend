@@ -11,11 +11,12 @@ public class Course : BaseEntity
     public string? ThumbnailUrl { get; set; }
     public string? Category { get; set; }
     public CourseLevel Level { get; set; }
-    public string InstructorId { get; set; } = default!;
+    public string? InstructorId { get; set; }
     public int TotalHours { get; set; }
+    public bool IsFree { get; set; } = false;
     public string? Status { get; set; }
     
-    public virtual Instructor Instructor { get; set; } = default!;
+    public virtual Instructor? Instructor { get; set; } = default!;
     public virtual ICollection<CourseObjective> LearningObjectives { get; set; } = new List<CourseObjective>();
     public virtual ICollection<CourseFeature> Features { get; set; } = new List<CourseFeature>();
     public virtual ICollection<Module> Modules { get; set; } = new List<Module>();

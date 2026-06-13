@@ -39,14 +39,14 @@ public class DeliverablesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "teacher,admin")]
+    [Authorize(Roles = "Admin,Teacher")]
     [HttpGet("course/{courseId}/student/{studentId}")]
     public async Task<ActionResult<List<DeliverableDto>>> GetStudentDeliverables(int courseId, string studentId)
     {
         return await _mediator.Send(new GetStudentDeliverablesInCourseQuery(courseId, studentId));
     }
 
-    [Authorize(Roles = "teacher,admin")]
+    [Authorize(Roles = "Admin,Teacher")]
     [HttpPost("{id}/grade")]
     public async Task<IActionResult> Grade(int id, [FromBody] GradeRequest request)
     {

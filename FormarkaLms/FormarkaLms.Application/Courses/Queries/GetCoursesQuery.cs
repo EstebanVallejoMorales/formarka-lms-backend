@@ -11,9 +11,11 @@ public class CourseDto
     public string? ThumbnailUrl { get; set; }
     public string? Category { get; set; }
     public string Level { get; set; } = default!;
-    public string InstructorName { get; set; } = default!;
-    public string InstructorId { get; set; } = default!;
-    public int TotalHours { get; set; }
+    public string? InstructorName { get; set; } = default!;
+    public string? InstructorId { get; set; } = default!;
+    public int? TotalHours { get; set; }
+    public bool IsFree { get; set; }
+    public bool IsEnrolled { get; set; }
 }
 
-public record GetCoursesQuery(string? InstructorId = null) : IRequest<List<CourseDto>>;
+public record GetCoursesQuery(string? InstructorId = null, string? UserId = null) : IRequest<List<CourseDto>>;

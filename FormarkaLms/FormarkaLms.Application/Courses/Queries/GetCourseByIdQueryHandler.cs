@@ -73,6 +73,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             InstructorId = course.InstructorId,
             InstructorName = course.Instructor.User.Name,
             TotalHours = course.TotalHours,
+            IsFree = course.IsFree,
             IsEnrolled = isEnrolled,
             LastVisitedLessonId = lastVisitedLessonId,
             LongDescription = course.LongDescription,
@@ -92,7 +93,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
                     Id = l.Id,
                     Title = l.Title,
                     Type = l.Type.ToString().ToLower(),
-                    ContentUrl = l.ContentUrl,
+                    ContentUrl = isEnrolled ? l.ContentUrl : null,
                     Duration = l.Duration.ToString(),
                     IsCompleted = completedLessonIds.Contains(l.Id),
                     Quiz = l.Quizzes.Select(q => new QuizDto

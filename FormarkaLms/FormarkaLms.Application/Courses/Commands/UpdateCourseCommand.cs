@@ -17,6 +17,7 @@ public record UpdateCourseCommand : IRequest<bool>
     public string? Category { get; set; }
     public string Level { get; set; } = "básico";
     public int TotalHours { get; set; }
+    public bool IsFree { get; set; } = false;
     public string? InstructorId { get; set; }
     public List<CourseObjectiveCommandDto> Objectives { get; set; } = new();
     public List<CourseFeatureCommandDto> Features { get; set; } = new();
@@ -75,6 +76,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, b
         course.Category = request.Category;
         course.Level = MapCourseLevel(request.Level);
         course.TotalHours = request.TotalHours;
+        course.IsFree = request.IsFree;
         if (!string.IsNullOrEmpty(request.InstructorId)) course.InstructorId = request.InstructorId;
         course.UpdatedAt = DateTime.UtcNow;
 

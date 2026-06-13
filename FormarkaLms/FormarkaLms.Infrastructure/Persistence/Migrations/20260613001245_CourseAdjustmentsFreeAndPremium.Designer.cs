@@ -3,6 +3,7 @@ using System;
 using FormarkaLms.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FormarkaLms.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613001245_CourseAdjustmentsFreeAndPremium")]
+    partial class CourseAdjustmentsFreeAndPremium
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,6 +123,7 @@ namespace FormarkaLms.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("InstructorId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsFree")
@@ -776,7 +780,8 @@ namespace FormarkaLms.Infrastructure.Persistence.Migrations
                     b.HasOne("FormarkaLms.Domain.Entities.Instructor", "Instructor")
                         .WithMany("Courses")
                         .HasForeignKey("InstructorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Instructor");
                 });

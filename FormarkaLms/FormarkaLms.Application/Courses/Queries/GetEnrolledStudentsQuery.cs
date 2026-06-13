@@ -40,7 +40,7 @@ public class GetEnrolledStudentsQueryHandler : IRequestHandler<GetEnrolledStuden
         foreach (var enrollment in enrollments)
         {
             var completedLessons = await _context.LessonProgresses
-                .Where(p => p.UserId == enrollment.StudentId && p.Lesson.Module.CourseId == request.CourseId && p.IsCompleted)
+                .Where(p => p.StudentId == enrollment.StudentId && p.Lesson.Module.CourseId == request.CourseId && p.IsCompleted)
                 .CountAsync(cancellationToken);
 
             int progress = totalLessons == 0 ? 0 : (completedLessons * 100) / totalLessons;

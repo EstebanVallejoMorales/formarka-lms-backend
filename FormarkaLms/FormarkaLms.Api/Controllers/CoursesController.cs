@@ -22,7 +22,8 @@ public class CoursesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<CourseDto>>> GetCourses()
     {
-        return await _mediator.Send(new GetCoursesQuery());
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return await _mediator.Send(new GetCoursesQuery(null, userId));
     }
 
     [Authorize(Roles = "Admin,Teacher")]
@@ -54,10 +55,18 @@ public class CoursesController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
+        var course = await _mediator.Send(new GetCourseByIdQuery(id, userId));
+        if (course == null) return NotFound();
+
+        if (!course.IsFree)
+        {
+            return BadRequest(new { Message = "Este es un curso Premium. Solo un administrador puede inscribirte." });
+        }
+
         var result = await _mediator.Send(new EnrollInCourseCommand(id, userId));
         if (!result) return NotFound();
 
-        return Ok(new { Message = "Successfully enrolled in course" });
+        return Ok(new { Message = "Inscripción exitosa" });
     }
 
     [Authorize(Roles = "Admin,Teacher")]
@@ -68,6 +77,16 @@ public class CoursesController : ControllerBase
         if (!result) return NotFound();
 
         return Ok(new { Message = "Student successfully enrolled in course" });
+    }
+
+    [Authorize(Roles = "Admin,Teacher")]
+    [HttpDelete("{id}/enroll-student/{studentId}")]
+    public async Task<IActionResult> UnenrollStudent(int id, string studentId)
+    {
+        var result = await _mediator.Send(new UnenrollStudentCommand(id, studentId));
+        if (!result) return NotFound();
+
+        return Ok(new { Message = "Student successfully unenrolled from course" });
     }
 
     [Authorize]

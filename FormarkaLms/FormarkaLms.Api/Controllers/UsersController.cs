@@ -70,7 +70,7 @@ public class UsersController : ControllerBase
         return await _mediator.Send(new GetInstructorsQuery());
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
     [HttpGet]
     public async Task<ActionResult<List<UserAdminDto>>> GetAll()
     {
@@ -100,7 +100,10 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var result = await _mediator.Send(new DeleteUserCommand(id));
+        var currentAdminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(currentAdminId)) return Unauthorized();
+
+        var result = await _mediator.Send(new DeleteUserCommand(id, currentAdminId));
         if (!result) return NotFound();
         return NoContent();
     }
