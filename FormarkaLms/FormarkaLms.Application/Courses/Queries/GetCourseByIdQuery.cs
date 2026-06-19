@@ -37,6 +37,15 @@ public class LessonDto
     public string? Duration { get; set; }
     public bool IsCompleted { get; set; }
     public QuizDto? Quiz { get; set; }
+    public List<ResourceDto> Resources { get; set; } = new();
+}
+
+public class ResourceDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = default!;
+    public string Url { get; set; } = default!;
+    public string Type { get; set; } = "pdf";
 }
 
 public record GetCourseByIdQuery(int Id, string? UserId = null) : IRequest<CourseDetailDto?>;

@@ -23,10 +23,13 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             .Include(c => c.LearningObjectives)
             .Include(c => c.Features)
             .Include(c => c.Modules.OrderBy(m => m.Order))
-            .ThenInclude(m => m.Lessons.OrderBy(l => l.Order))
-            .ThenInclude(l => l.Quizzes)
-            .ThenInclude(q => q.Questions.OrderBy(qs => qs.Order))
-            .ThenInclude(qs => qs.Options)
+                .ThenInclude(m => m.Lessons.OrderBy(l => l.Order))
+                    .ThenInclude(l => l.Resources)
+            .Include(c => c.Modules)
+                .ThenInclude(m => m.Lessons)
+                    .ThenInclude(l => l.Quizzes)
+                        .ThenInclude(q => q.Questions.OrderBy(qs => qs.Order))
+                            .ThenInclude(qs => qs.Options)
             .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
         if (course == null) return null;
@@ -102,6 +105,13 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
                     ContentUrl = isEnrolled ? l.ContentUrl : null,
                     Duration = l.Duration.ToString(),
                     IsCompleted = completedLessonIds.Contains(l.Id),
+                    Resources = l.Resources.Select(r => new ResourceDto
+                    {
+                        Id = r.Id,
+                        Title = r.Title,
+                        Url = isEnrolled ? r.Url : "",
+                        Type = r.Type.ToString().ToLower()
+                    }).ToList(),
                     Quiz = l.Quizzes.Select(q => new QuizDto
                     {
                         Id = q.Id,
