@@ -10,10 +10,12 @@ namespace FormarkaLms.Application.Users.Commands;
 public class CompleteUserProfileCommandHandler : IRequestHandler<CompleteUserProfileCommand, Result<string>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISupabaseService _supabaseService;
 
-    public CompleteUserProfileCommandHandler(IApplicationDbContext context)
+    public CompleteUserProfileCommandHandler(IApplicationDbContext context, ISupabaseService supabaseService)
     {
         _context = context;
+        _supabaseService = supabaseService;
     }
 
     public async Task<Result<string>> Handle(CompleteUserProfileCommand request, CancellationToken cancellationToken)
@@ -74,6 +76,9 @@ public class CompleteUserProfileCommandHandler : IRequestHandler<CompleteUserPro
             };
             _context.Instructors.Add(instructor);
         }
+
+        // Sincronizar el rol del usuario en Supabase para que se refleje en los claims del token JWT
+        await _supabaseService.UpdateUserRoleAsync(request.Id, userRole.ToString());
 
         await _context.SaveChangesAsync(cancellationToken);
 

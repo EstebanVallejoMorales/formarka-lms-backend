@@ -32,6 +32,7 @@ public class LessonDto
     public int Id { get; set; }
     public string Title { get; set; } = default!;
     public string Type { get; set; } = default!;
+    public string? Description { get; set; }
     public string? ContentUrl { get; set; }
     public string? Duration { get; set; }
     public bool IsCompleted { get; set; }

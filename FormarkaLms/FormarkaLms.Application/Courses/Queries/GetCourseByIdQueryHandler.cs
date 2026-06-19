@@ -37,7 +37,12 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
 
         if (!string.IsNullOrEmpty(request.UserId))
         {
-            isEnrolled = await _context.Enrollments
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+
+            var isStaff = user != null && (user.Role == UserRole.Admin || user.Role == UserRole.Teacher);
+
+            isEnrolled = isStaff || await _context.Enrollments
                 .AnyAsync(e => e.CourseId == request.Id && e.StudentId == request.UserId, cancellationToken);
 
             var userProgress = await _context.LessonProgresses
@@ -93,6 +98,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
                     Id = l.Id,
                     Title = l.Title,
                     Type = l.Type.ToString().ToLower(),
+                    Description = l.Description,
                     ContentUrl = isEnrolled ? l.ContentUrl : null,
                     Duration = l.Duration.ToString(),
                     IsCompleted = completedLessonIds.Contains(l.Id),

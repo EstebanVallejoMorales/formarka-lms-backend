@@ -4,4 +4,5 @@ public interface ISupabaseService
 {
     Task<bool> DeleteUserAsync(string userId);
     Task<bool> UpdateUserPasswordAsync(string userId, string newPassword);
+    Task<bool> UpdateUserRoleAsync(string userId, string role);
 }

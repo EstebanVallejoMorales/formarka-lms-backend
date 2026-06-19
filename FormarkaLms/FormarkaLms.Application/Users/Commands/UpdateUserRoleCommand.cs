@@ -10,10 +10,12 @@ public record UpdateUserRoleCommand(string UserId, string Role) : IRequest<bool>
 public class UpdateUserRoleCommandHandler : IRequestHandler<UpdateUserRoleCommand, bool>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISupabaseService _supabaseService;
 
-    public UpdateUserRoleCommandHandler(IApplicationDbContext context)
+    public UpdateUserRoleCommandHandler(IApplicationDbContext context, ISupabaseService supabaseService)
     {
         _context = context;
+        _supabaseService = supabaseService;
     }
 
     public async Task<bool> Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
@@ -42,6 +44,9 @@ public class UpdateUserRoleCommandHandler : IRequestHandler<UpdateUserRoleComman
                 {
                     _context.Students.Add(new FormarkaLms.Domain.Entities.Student { Id = user.Id });
                 }
+
+                // Sincronizar el rol del usuario en Supabase
+                await _supabaseService.UpdateUserRoleAsync(user.Id, newRole.ToString());
             }
 
             await _context.SaveChangesAsync(cancellationToken);
