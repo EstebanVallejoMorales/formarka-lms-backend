@@ -19,6 +19,10 @@ public class CertificatesController : ControllerBase
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Returns the certificate for a completed course, or 400 if the student is not yet eligible.
+    /// The error message indicates the specific reason (incomplete lessons, pending/failed deliverables).
+    /// </summary>
     [HttpGet("course/{courseId}")]
     public async Task<ActionResult<CertificateDto>> GetCertificate(int courseId)
     {
@@ -26,7 +30,8 @@ public class CertificatesController : ControllerBase
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
         var result = await _mediator.Send(new GetCertificateQuery(courseId, userId));
-        if (result == null) return BadRequest(new { Message = "Course not completed yet." });
+        if (result == null)
+            return BadRequest(new { Message = "No puedes obtener el certificado todavía. Asegúrate de haber completado el 100% del curso y que todos tus entregables estén revisados y aprobados." });
 
         return Ok(result);
     }
