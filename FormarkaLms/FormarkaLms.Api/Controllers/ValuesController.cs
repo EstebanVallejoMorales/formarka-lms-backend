@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -17,8 +17,8 @@ namespace FormarkaLms.Api.Controllers
         public IActionResult GetPrivate()
         {
             // Supabase stores the user ID in the 'sub' claim (NameIdentifier)
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var email = User.FindFirstValue(ClaimTypes.Email);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            var email = User.FindFirstValue("email") ?? User.FindFirstValue(ClaimTypes.Email);
 
             return Ok(new
             {

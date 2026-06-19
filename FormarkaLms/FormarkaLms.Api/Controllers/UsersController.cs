@@ -24,8 +24,8 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> CompleteProfile([FromBody] CompleteProfileDto dto)
     {
         // 1. Extraemos el UID y el Email directamente del Token JWT de Supabase
-        var supabaseId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var email = User.FindFirstValue(ClaimTypes.Email); 
+        var supabaseId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var email = User.FindFirstValue("email") ?? User.FindFirstValue(ClaimTypes.Email); 
 
         if (string.IsNullOrEmpty(supabaseId))
             return Unauthorized(new { Message = "Token inválido o sin ID de usuario." });
