@@ -19,6 +19,6 @@ public class LessonProgressConfiguration : IEntityTypeConfiguration<LessonProgre
         builder.HasOne(lp => lp.Lesson)
             .WithMany(l => l.LessonProgresses)
             .HasForeignKey(lp => lp.LessonId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

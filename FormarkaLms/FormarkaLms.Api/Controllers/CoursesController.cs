@@ -124,7 +124,6 @@ public class CoursesController : ControllerBase
         if (!result) return NotFound();
         return NoContent();
     }
-
     [Authorize(Roles = "Admin")]
     [HttpPost("{id}/assign-instructor")]
     public async Task<IActionResult> AssignInstructor(int id, [FromBody] string instructorId)

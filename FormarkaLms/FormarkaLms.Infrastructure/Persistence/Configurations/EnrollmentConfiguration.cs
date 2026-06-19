@@ -19,6 +19,6 @@ public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
         builder.HasOne(e => e.Course)
             .WithMany(c => c.Enrollments)
             .HasForeignKey(e => e.CourseId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

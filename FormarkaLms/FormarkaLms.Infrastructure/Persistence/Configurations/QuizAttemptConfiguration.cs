@@ -14,7 +14,7 @@ public class QuizAttemptConfiguration : IEntityTypeConfiguration<QuizAttempt>
         builder.HasOne(qa => qa.Quiz)
             .WithMany(q => q.Attempts)
             .HasForeignKey(qa => qa.QuizId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(qa => qa.Student)
             .WithMany(s => s.QuizAttempts)

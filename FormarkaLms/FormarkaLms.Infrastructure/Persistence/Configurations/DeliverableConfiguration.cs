@@ -19,6 +19,6 @@ public class DeliverableConfiguration : IEntityTypeConfiguration<Deliverable>
         builder.HasOne(d => d.Lesson)
             .WithMany(l => l.Deliverables)
             .HasForeignKey(d => d.LessonId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
