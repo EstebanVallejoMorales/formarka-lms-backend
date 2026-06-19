@@ -63,6 +63,20 @@ public class UsersController : ControllerBase
         return Ok(new { IsProfileComplete = userExists });
     }
 
+    [Authorize]
+    [HttpPut("password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var result = await _mediator.Send(new ChangePasswordCommand(userId, dto.NewPassword));
+        
+        if (!result) return BadRequest(new { Message = "No se pudo actualizar la contraseña." });
+        
+        return NoContent();
+    }
+
     [Authorize(Roles = "Admin,Teacher")]
     [HttpGet("instructors")]
     public async Task<ActionResult<List<InstructorDto>>> GetInstructors()

@@ -47,4 +47,27 @@ public class SupabaseService : ISupabaseService
             return false;
         }
     }
+
+    public async Task<bool> UpdateUserPasswordAsync(string userId, string newPassword)
+    {
+        try
+        {
+            var url = _supabaseClient.Auth.Options.Url;
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("apikey", _serviceRoleKey);
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _serviceRoleKey);
+
+            var payload = new { password = newPassword };
+            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PutAsync($"{url}/admin/users/{userId}", content);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating user password in Supabase via API: {ex.Message}");
+            return false;
+        }
+    }
 }
